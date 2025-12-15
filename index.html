@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squid Game Simulator</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/players.css">
+    <link rel="stylesheet" href="css/controls.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/game-log.css">
+</head>
+<body>
+    <!-- STARTUP FADE OVERLAY -->
+    <div id="startupOverlay"></div>
+
+    <!-- ARCHIVE VIEW BANNER -->
+    <div id="archive-view-banner">
+        You are viewing an archived game. <button onclick="appState.returnToLiveGame()">Return to Live Session</button>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="eliminationAnnouncement"></div>
+    <div id="achievement-toast"></div>
+
+    <!-- INSTRUCTIONS PANEL -->
+    <div id="instructions-panel" style="position: fixed; bottom: 10px; left: 10px; width: 260px; z-index: 2500; border: 1px solid rgba(255,128,171,0.4); border-radius: 12px; background: rgba(5,3,8,0.96); box-shadow: 0 12px 30px rgba(0,0,0,0.8);">
+        <div id="instructions-toggle" onclick="ui.toggleInstructions()">Guide to V0.1 [Click to Open]</div>
+        <div id="instructions-content" class="collapsible" style="padding: 8px 10px; overflow-y: auto; text-align: left; font-size: 0.82em;">
+            <h4>Welcome to the Squid Game Simulator!</h4>
+            <p><strong>Save/Load Game:</strong> Use the "Save Game State" button below the title to download your entire session.</p>
+            <p><strong>Starting a Game:</strong> Enter the number of players (default 456) and click "Begin new game".</p>
+            <p><strong>Playing a Round:</strong> Use the "Game Presets" box to choose a game, or use the "Custom Round" controls.</p>
+            <p><strong>Animated Rounds:</strong> Click "Arm Animation Mode". Then click any game preset to watch eliminations happen live.</p>
+            <p><strong>Player Dossier:</strong> Click on any player's diamond to open their detailed file.</p>
+            <p><strong>VIP Betting:</strong> In the 'VIP' tab, you can bet on multiple players to win. Your balance persists between games.</p>
+            <p><strong>Achievements:</strong> Unlock achievements by completing certain milestones!</p>
+        </div>
+    </div>
+
+    <!-- MUSIC TOGGLE -->
+    <button class="music-toggle" id="musicToggleBtn" onclick="bgm.toggle()">🔊 Music</button>
+
+    <!-- DARK MODE PICKER -->
+    <div class="darkmode-picker" id="darkmodePicker">
+        <button onclick="ui.setTheme('light')" id="theme-light" title="Light">☀</button>
+        <button onclick="ui.setTheme('dark')" id="theme-dark" title="Dark">🌙</button>
+        <button onclick="ui.setTheme('ocean')" id="theme-ocean" title="Ocean">🌊</button>
+        <button onclick="ui.setTheme('forest')" id="theme-forest" title="Forest">🌲</button>
+        <button onclick="ui.setTheme('sunset')" id="theme-sunset" title="Sunset">🌅</button>
+        <button onclick="ui.setTheme('neon')" id="theme-neon" title="Neon">💡</button>
+        <button onclick="ui.setTheme('cyber')" id="theme-cyber" title="Cyber">🤖</button>
+    </div>
+
+    <!-- TITLE & CONTROLS -->
+    <div class="title-container">
+        <h1>Squid Game Simulator 2 Pre-Release</h1>
+    </div>
+
+    <!-- TOP BAR: SAVE/LOAD + GAME START CONTROLS -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <div class="save-load-controls">
+                <button onclick="appState.saveGame()">Save Game State</button>
+                <label for="loadGameInput" class="button-like-label">Load Game State</label>
+                <input type="file" id="loadGameInput" onchange="appState.loadGame(event)" accept=".json">
+                <button onclick="ui.preloadAllPlayerPhotos()" style="margin-left: 4px;">Generate Photos</button>
+                <span id="photoGenStatus" style="margin-left: 4px; font-size: 11px; color: var(--text-color); opacity: 0.85;"></span>
+                <label style="margin-left: 4px; font-size: 11px; cursor: pointer; display:flex; align-items:center; gap:2px;">
+                    <input type="checkbox" id="autoPhotoGenToggle" onchange="ui.toggleAutoPhotoGeneration(this.checked)" style="vertical-align: middle; margin-right: 0;">
+                    Auto
+                </label>
+                <button onclick="ui.stopPhotoGeneration()" style="margin-left: 4px; font-size: 11px; padding: 4px 8px;">Stop</button>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <div class="controls" style="margin:0;">
+                <label>Enter number of starting players: </label>
+                <input type="number" id="numPlayers" min="2" value="456">
+                <button onclick="appState.startGame(false)">Begin Vanilla Game</button>
+                <button onclick="ui.toggleEliminatedVisibility()" id="toggleEliminatedBtn">Hide Eliminated/Out</button>
+                <button onclick="ui.toggleGroupView()" id="toggleGroupBtn">Show Groups</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADVANCED SETTINGS -->
+    <div id="advanced-settings-panel" style="max-width: 900px; margin: 10px auto; border: 1px solid #999; background-color: #f8f8f8; color: #111; border-radius: 5px;">
+        <div id="advanced-settings-toggle" onclick="ui.toggleAdvancedSettings()">Advanced New Game Settings [Click to Open]</div>
+        <div id="advanced-settings-content" class="collapsible" style="padding: 15px; text-align: left;">
+            <p style="font-style: italic; color: #d90429; font-weight: bold; text-align: center;">Using any of these settings will disable VIP Betting for this game.</p>
+            <h4>Demographics</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1 1 200px;"><label for="advCountry">Country (for all):</label><input type="text" id="advCountry" placeholder="e.g., South Korea"></div>
+                <div style="flex: 1 1 200px;"><label for="advFemaleCount">Number of Females:</label><input type="number" id="advFemaleCount" min="0" placeholder="e.g., 200"></div>
+                <div style="flex: 1 1 200px;"><label for="advMaleCount">Number of Males:</label><input type="number" id="advMaleCount" min="0" placeholder="e.g., 256"></div>
+                <div style="flex: 1 1 200px;"><label>Age Range:</label><div style="display: flex; gap: 5px;"><input type="number" id="advAgeMin" min="18" placeholder="Min" style="width: 45% !important;"><input type="number" id="advAgeMax" min="18" placeholder="Max" style="width: 45% !important;"></div></div>
+            </div>
+            <h4>Base Traits (Range 1-15)</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1 1 200px;"><label>Strength:</label><div style="display: flex; gap: 5px;"><input type="number" id="advStrMin" min="1" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advStrMax" min="1" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+                <div style="flex: 1 1 200px;"><label>Agility:</label><div style="display: flex; gap: 5px;"><input type="number" id="advAgiMin" min="1" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advAgiMax" min="1" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+                <div style="flex: 1 1 200px;"><label>Intelligence:</label><div style="display: flex; gap: 5px;"><input type="number" id="advIntMin" min="1" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advIntMax" min="1" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+                <div style="flex: 1 1 200px;"><label>Charisma:</label><div style="display: flex; gap: 5px;"><input type="number" id="advChaMin" min="1" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advChaMax" min="1" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+                <div style="flex: 1 1 200px;"><label>Luck:</label><div style="display: flex; gap: 5px;"><input type="number" id="advLckMin" min="1" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advLckMax" min="1" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+                <div style="flex: 1 1 200px;"><label>Cowardice:</label><div style="display: flex; gap: 5px;"><input type="number" id="advCowMin" min="0" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advCowMax" min="0" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+                <div style="flex: 1 1 200px;"><label>Greed:</label><div style="display: flex; gap: 5px;"><input type="number" id="advGrdMin" min="0" max="15" placeholder="Min" style="width: 45% !important;"><input type="number" id="advGrdMax" min="0" max="15" placeholder="Max" style="width: 45% !important;"></div></div>
+            </div>
+            <button onclick="appState.startGame(true)" style="width: 100%; padding: 10px; margin-top: 15px; font-weight: bold; background-color: #d90429; color: white;">Begin Advanced Game</button>
+        </div>
+    </div>
+
+    <!-- GRID VIEWPORT + GAME LOG -->
+    <div id="grid-viewport-container">
+        <div id="history-slider-container">
+            <label for="historySlider">Game History:</label>
+            <input type="range" id="historySlider" min="0" max="0" value="0" oninput="appState.handleHistorySlide(this.value)">
+            <span id="historySliderLabel">Live</span>
+            <button onclick="appState.returnToLive()">Return to Live</button>
+        </div>
+        <div id="grid-controls">
+            <button onclick="ui.zoom(1.2)">Zoom In (+)</button>
+            <button onclick="ui.zoom(1/1.2)">Zoom Out (-)</button>
+            <button onclick="ui.resetZoom()">Reset Zoom</button>
+        </div>
+        <div id="grid-viewport">
+            <div id="players"></div>
+        </div>
+        <div class="game-log">
+            <div class="game-log-tabs">
+                <button id="gameLogTabEvents" class="game-log-tab-btn active" onclick="ui.switchGameLogTab('events')">Game Events</button>
+                <button id="gameLogTabLobby" class="game-log-tab-btn" onclick="ui.switchGameLogTab('lobby')">Lobby Talk</button>
+            </div>
+            <div id="gameLogTabContentEvents" class="game-log-tab-content active">
+                <div class="game-events-list">
+                    <h3 style="margin-top:0;">Game Log</h3>
+                    <ul id="gameLogList"></ul>
+                </div>
+            </div>
+            <div id="gameLogTabContentLobby" class="game-log-tab-content">
+                <div id="lobbyChatDisplay"></div>
+                <div class="lobby-chat-controls">
+                    <div class="lobby-chat-controls-row">
+                        <button type="button" onclick="lobbyTalk.generateRandomConversation()">Generate Random Conversation</button>
+                    </div>
+                    <div class="lobby-chat-controls-row">
+                        <label># Participants: <input type="number" id="lobbyNumParticipants" min="2" max="4" value="3"></label>
+                        <label>Specific IDs: <input type="text" id="lobbySpecificIds" placeholder="e.g. 67, 218"></label>
+                    </div>
+                    <div class="lobby-chat-controls-row">
+                        <label>Topic:
+                            <select id="lobbyTopicSelect" onchange="lobbyTalk.onTopicChange()">
+                                <option value="random">Random</option>
+                                <option value="previousGame">Previous Game</option>
+                                <option value="specificPlayer">Specific Player</option>
+                                <option value="personalDebt">Personal Life/Debt</option>
+                                <option value="strategy">Strategy/Next Game</option>
+                                <option value="custom">Custom Topic</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="lobby-topic-extra">
+                        <label id="lobbyPrevGameWrapper" style="display:none;">Game: <select id="lobbyPreviousGameSelect"></select></label>
+                        <label id="lobbySpecificPlayerWrapper" style="display:none;">Target Player ID: <input type="number" id="lobbyTopicPlayerId" min="1"></label>
+                        <label id="lobbyCustomTopicWrapper" style="flex:1; display:none;">Custom: <input type="text" id="lobbyCustomTopicInput" placeholder="What should they talk about?"></label>
+                    </div>
+                    <div class="lobby-chat-controls-row" style="margin-top:4px;">
+                        <button type="button" onclick="lobbyTalk.forceConversation()">Force Chat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROUND CONTROLS -->
+    <div class="controls">
+        <label>Number of Eliminated Players for the next round: </label>
+        <input type="number" id="numEliminated" min="1" value="1">
+        <br><br>
+        <label>Reason for elimination: </label>
+        <input type="text" id="roundDescription" value="failed a generic challenge">
+        <br><br>
+        <button onclick="gameEngine.playRound()">Begin Custom Round</button>
+        <button onclick="gameEngine.toggleAnimationMode()" id="animationModeBtn">Arm Animation Mode</button>
+        <button onclick="gameEngine.pausePlayAnimation()" id="pausePlayButton" disabled>Pause Animation</button>
+    </div>
+
+    <h2>Players Remaining: <span id="playersRemaining">0</span></h2>
+
+    <div class="controls">
+        <button onclick="ui.toggleRosterView()" id="toggleRosterBtn">Compact Roster (Delete Out)</button>
+    </div>
+
+    <!-- MAIN CONTROL PANEL -->
+    <div class="control-panel-wrapper">
+        <div id="controlPanelToggle" onclick="ui.toggleControlPanel()">Game Control & Customization ▼</div>
+        <div id="controlPanelContainer" class="collapsible">
+            <div class="tab-buttons">
+                <button class="tab-link active" onclick="ui.openTab(event, 'tabGames')">Games & Statistics</button>
+                <button class="tab-link" onclick="ui.openTab(event, 'tabPersonalities')">Personalities</button>
+                <button class="tab-link" onclick="ui.openTab(event, 'tabRelationships')">Alliances & Enemies</button>
+                <button class="tab-link" id="vip-tab-button" onclick="ui.openTab(event, 'tabVip')">VIP</button>
+                <button class="tab-link" id="achievements-tab-button" onclick="ui.openTab(event, 'tabAchievements')">Achievements</button>
+                <button class="tab-link" id="voting-tab-button" onclick="ui.openTab(event, 'tabVoting')">Voting</button>
+                <button class="tab-link" onclick="ui.openTab(event, 'tabOther')">Other</button>
+            </div>
+
+            <!-- TAB: GAMES & STATISTICS -->
+            <div id="tabGames" class="tab-content" style="display: block;">
+                <div class="control-panel">
+                    <div class="statistics-box control-box">
+                        <h3>Game Statistics</h3>
+                        <div id="statisticsContent"></div>
+                        <h4 style="margin-top:15px;">Elimination Order</h4>
+                        <div id="eliminationOrderContainer">
+                            <div id="eliminationOrderList"></div>
+                        </div>
+                    </div>
+                    <div class="game-presets-box control-box">
+                        <h3>Game Presets</h3>
+                        <div class="game-presets-controls">
+                            <button onclick="gameEngine.handleRedLightGreenLight()">RLGL (30-65%)</button>
+                            <button onclick="gameEngine.playTextSimGame('Dalgona')">Dalgona</button>
+                            <button onclick="gameEngine.handleCatch()">Catch Game (~50%)</button>
+                            <button onclick="gameEngine.handleTugOfWar()">Tug of War (~50%)</button>
+                            <button onclick="gameEngine.handleDodgeball()">Dodgeball (~50%)</button>
+                            <button onclick="gameEngine.playTextSimGame('Lights Out')">Lights Out (Deadly)</button>
+                            <button onclick="gameEngine.playTextSimGame('Marbles')">Marbles (~50%)</button>
+                            <button onclick="gameEngine.playTextSimGame('Glass Bridge')">Glass Bridge</button>
+                            <button onclick="gameEngine.handleSquidGame()">Squid Game</button>
+                            <button onclick="gameEngine.playTextSimGame('Sky Squid Game')">Sky Squid Game (3-9)</button>
+                            <button onclick="gameEngine.handlePentathlon()">Pentathlon (Pass ~60%)</button>
+                            <button onclick="gameEngine.handleMingle()">Mingle (40%)</button>
+                            <button onclick="gameEngine.playPresetGame('Rebellion', 30, 30, 'was eliminated in the Rebellion.')">Rebellion (30%)</button>
+                            <button onclick="gameEngine.handleHideAndSeek()">Hide & Seek (50-60%)</button>
+                            <button onclick="gameEngine.playPresetGame('Jump Rope', 70, 80, 'failed the jump rope.')">Jump Rope (70-80%)</button>
+                            <button onclick="gameEngine.handleHotPotato()">Hot Potato (75%)</button>
+                            <button onclick="gameEngine.handleCircleOfTrust()">Circle of Trust</button>
+                            <button onclick="gameEngine.handleHopscotch()">Hopscotch (Luck)</button>
+                            <button onclick="gameEngine.handleConfirmFinalists()">Confirm Finalists</button>
+                            <button onclick="gameEngine.playPresetGame('Get Finalist', -1, -1, 'was eliminated to determine finalists.')">Get Finalist (To 3)</button>
+                            <button onclick="gameEngine.playPresetGame('Confirm Winners', 0, 0, 'agreed to split the prize.')">Confirm Winners</button>
+                        </div>
+                    </div>
+                    <div class="game-creator-box control-box">
+                        <h3>Game Creator</h3>
+                        <label>Game Name:</label><input type="text" id="customGameName"><br>
+                        <label>Elimination Reason:</label><input type="text" id="customGameReason"><br>
+                        <h4>Used Traits (for survival):</h4>
+                        <div class="trait-checkboxes" style="display: flex; flex-wrap: wrap; align-items: center;">
+                            <label style="display: flex; align-items: center; width: 50%; margin-bottom: 4px;"><input type="checkbox" name="customTrait" value="strength"> Str</label>
+                            <label style="display: flex; align-items: center; width: 50%; margin-bottom: 4px;"><input type="checkbox" name="customTrait" value="agility"> Agi</label>
+                            <label style="display: flex; align-items: center; width: 50%; margin-bottom: 4px;"><input type="checkbox" name="customTrait" value="intelligence"> Int</label>
+                            <label style="display: flex; align-items: center; width: 50%; margin-bottom: 4px;"><input type="checkbox" name="customTrait" value="charisma"> Cha</label>
+                            <label style="display: flex; align-items: center; width: 50%; margin-bottom: 4px;"><input type="checkbox" name="customTrait" value="luck"> Lck</label>
+                        </div>
+                        <h4>Elimination Rule:</h4>
+                        <label><input type="radio" name="elimType" value="percent" checked> Percentage</label>
+                        <label><input type="radio" name="elimType" value="number"> Number</label><br>
+                        <input type="number" id="customGameValue" value="10"><br><br>
+                        <button onclick="gameEngine.createCustomGame()">Create Game</button>
+                        <hr>
+                        <h4>Custom Games:</h4>
+                        <div id="customGamesList"></div>
+                    </div>
+                    <div class="events-box control-box">
+                        <h3>Events (Once per Game)</h3>
+                        <div id="events-controls">
+                            <button id="eventBtn-bathroomFight" onclick="gameEngine.handleBathroomFight()">Bathroom Fight</button>
+                            <button id="eventBtn-xVsO" onclick="gameEngine.handleXvsO()">X vs O Brawl</button>
+                            <button id="eventBtn-escapeAttempt" onclick="gameEngine.handleEscapeAttempt()">Attempt Escape</button>
+                            <button id="eventBtn-giveHint" onclick="gameEngine.handleGiveHint()">Give Player Hint</button>
+                            <button id="eventBtn-selfElimination" onclick="gameEngine.handleRandomSelfElimination()">Random Self-Elimination</button>
+                            <hr>
+                            <button id="eventBtn-random" onclick="gameEngine.handleRandomEvent()">Trigger Random Event</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PERSONALITIES -->
+            <div id="tabPersonalities" class="tab-content">
+                <div class="control-panel">
+                    <div class="personality-box control-box">
+                        <h3>Personality Box</h3>
+                        <label>Player ID: </label><input type="number" id="personalityPlayerId" min="1"><br><br>
+                        <label>First Name: </label><input type="text" id="playerFirstName"><br><br>
+                        <label>Last Name: </label><input type="text" id="playerLastName"><br><br>
+                        <label>Nickname: </label><input type="text" id="playerNickname"><br><br>
+                        <label>Age: </label><input type="number" id="playerAge" min="18"><br><br>
+                        <label>Gender: </label><select id="playerGender"><option value=""></option><option value="Male">Male</option><option value="Female">Female</option></select><br><br>
+                        <label>Country: </label><input type="text" id="playerCountry"><br><br>
+                        <label>Occupation: </label><input type="text" id="playerOccupation"><br><br>
+                        <label>Debt ($): </label><input type="number" id="playerDebt" min="0"><br><br>
+                        <button onclick="playerMgmt.applyPersonality()">Apply Personality</button>
+                        <h4>Players with Personalities</h4>
+                        <ul id="personalityPlayers"></ul>
+                    </div>
+                    <div class="easter-egg-box control-box">
+                        <h3>Easter Egg Characters</h3>
+                        <div id="easterEggCharacterList"></div>
+                    </div>
+                    <div class="control-box" style="background-color: #d4edda; color: #111;">
+                        <h3>Add Previous Winner</h3>
+                        <label for="previousWinnerSelect">Select Winner:</label>
+                        <select id="previousWinnerSelect" onchange="playerMgmt.updateWinnerDefaultId()"></select>
+                        <label for="newWinnerPlayerId">Place at Player ID:</label>
+                        <input type="number" id="newWinnerPlayerId" min="1">
+                        <br><br>
+                        <button onclick="playerMgmt.addPreviousWinnerToGame()" style="width: 100%;">Add to Game</button>
+                    </div>
+                    <div class="control-box favorites-box">
+                        <h3>⭐ Favorited Players</h3>
+                        <ul id="favoritedPlayersList"></ul>
+                    </div>
+                    <div class="traits-box control-box">
+                        <h3>Hidden Traits</h3>
+                        <label>Player ID: </label><input type="number" id="traitPlayerId" onkeyup="playerMgmt.loadPlayerTraits(this.value)"><br><br>
+                        <label>Strength: </label><input type="number" id="traitStrength" min="1" max="15"><br>
+                        <label>Agility: </label><input type="number" id="traitAgility" min="1" max="15"><br>
+                        <label>Intelligence: </label><input type="number" id="traitIntelligence" min="1" max="15"><br>
+                        <label>Charisma: </label><input type="number" id="traitCharisma" min="1" max="15"><br>
+                        <label>Luck: </label><input type="number" id="traitLuck" min="1" max="15"><br>
+                        <label>Cowardice: </label><input type="number" id="traitCowardice" min="0" max="15"><br>
+                        <label>Greed: </label><input type="number" id="traitGreed" min="0" max="15"><br><br>
+                        <button onclick="playerMgmt.applyTraits()">Apply Traits</button>
+                        <button onclick="playerMgmt.randomizeTraitsForSelectedPlayer()">Randomize</button>
+                    </div>
+                    <div class="superpower-box control-box">
+                        <h3>Superpower Box</h3>
+                        <label for="superpowerPlayerId">Player ID: </label><input type="number" id="superpowerPlayerId" min="1"><br><br>
+                        <label for="protectionLevel">Protection: </label><input type="number" id="protectionLevel" min="1" value="1"><br><br>
+                        <button onclick="playerMgmt.applySuperpower()">Apply Superpower</button>
+                        <h4>Superpowered Players</h4>
+                        <ul id="superpoweredPlayers"></ul>
+                        <p style="font-size: 0.8em; font-style: italic; color: #555; margin-top: 10px; padding-top: 5px; border-top: 1px dashed #999;">
+                            <strong>Recommended:</strong> Prot 1 for background, Prot 2 for side, Prot 3 for main characters.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: RELATIONSHIPS -->
+            <div id="tabRelationships" class="tab-content">
+                <div class="control-panel">
+                    <div class="alliance-box control-box">
+                        <h3>Alliances</h3>
+                        <label>Player 1 ID: </label><input type="number" id="allianceP1" min="1"><br>
+                        <label>Player 2 ID: </label><input type="number" id="allianceP2" min="1"><br><br>
+                        <button onclick="relationships.createAlliance()">Create Alliance</button>
+                        <button onclick="relationships.removeAlliance()">Remove Alliance</button>
+                    </div>
+                    <div class="enemy-box control-box">
+                        <h3>Enemies</h3>
+                        <label>Player 1 ID: </label><input type="number" id="enemyP1" min="1"><br>
+                        <label>Player 2 ID: </label><input type="number" id="enemyP2" min="1"><br><br>
+                        <button onclick="relationships.createEnemy()">Create Enemy</button>
+                        <button onclick="relationships.removeEnemy()">Remove Enemies</button>
+                    </div>
+                    <div class="control-box" style="background-color: #d1e7dd; color: #111;">
+                        <h3>Manual Relationships</h3>
+                        <label>Player 1 ID:</label><input type="number" id="relationP1" min="1">
+                        <label>Player 2 ID:</label><input type="number" id="relationP2" min="1">
+                        <label>Relationship (P1's relation to P2):</label>
+                        <select id="relationType">
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Daughter">Daughter</option>
+                            <option value="Son">Son</option>
+                            <option value="Wife">Wife</option>
+                            <option value="Husband">Husband</option>
+                            <option value="Friend">Friend</option>
+                        </select>
+                        <br><br>
+                        <button onclick="relationships.createRelation()" style="width: 100%;">Create Relation</button>
+                        <hr>
+                        <label>Remove From Player ID:</label>
+                        <input type="number" id="removeRelationP1" min="1">
+                        <button onclick="relationships.removeRelation()" style="width: 100%; margin-top: 5px;">Remove Relation</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: VIP BETTING -->
+            <div id="tabVip" class="tab-content">
+                <div class="control-panel">
+                    <div class="vip-box control-box">
+                        <h3>Bet on a Player</h3>
+                        <p><strong>Betting Balance:</strong> <span id="bettingBalanceDisplay">$1,000,000</span></p>
+                        <div id="betting-main-content"></div>
+                        <div id="betting-disabled-msg" style="display: none; color: #ffc107; font-weight: bold; text-align: center; padding: 10px; border: 1px dashed #ffc107; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ACHIEVEMENTS -->
+            <div id="tabAchievements" class="tab-content">
+                <div class="control-panel">
+                    <div class="control-box" style="background-color: var(--control-box-bg); color: var(--text-color); width: 500px;">
+                        <h3>Achievements</h3>
+                        <div id="achievements-list" style="max-height: 250px; overflow-y: auto; text-align: left; padding: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: VOTING -->
+            <div id="tabVoting" class="tab-content">
+                <div class="control-panel">
+                    <div class="voting-box control-box">
+                        <h3>Voting Controls</h3>
+                        <button onclick="gameEngine.toggleSeason2Mode()" id="season2ToggleBtnInTab">Enable Voting Mode</button>
+                        <hr>
+                        <h4>Actions (when enabled):</h4>
+                        <button onclick="gameEngine.startVotingRound()">Start Voting Round</button>
+                        <button onclick="ui.toggleVoteColors()" id="toggleVoteColorsBtn">Show Vote Colors</button>
+                    </div>
+                    <div class="statistics-box control-box">
+                        <h3>Game Statistics (Voting View)</h3>
+                        <div id="votingStatsContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: OTHER -->
+            <div id="tabOther" class="tab-content">
+                <div class="control-panel">
+                    <div class="manual-actions-box control-box">
+                        <h3>Manual Actions</h3>
+                        <label>Player ID:</label><input type="number" id="manualPlayerId_other" min="1">
+                        <label>Reason (Optional):</label><input type="text" id="manualActionReason_other">
+                        <button onclick="playerMgmt.manualElimination(false, null, 'manualPlayerId_other', 'manualActionReason_other')">Eliminate by ID</button>
+                        <button onclick="playerMgmt.eliminateRandomPlayer()">Eliminate Random Player</button>
+                        <button onclick="playerMgmt.revivePlayer('manualPlayerId_other')">Revive by ID</button>
+                    </div>
+                    <div class="injury-box control-box">
+                        <h3>Manual Injury</h3>
+                        <label>Player ID:</label><input type="number" id="manualInjuryPlayerId" min="1">
+                        <h4>Injury Type:</h4>
+                        <label><input type="radio" name="injuryType" value="minor" checked> Minor (1 round, +1 Cowardice)</label>
+                        <label><input type="radio" name="injuryType" value="regular"> Regular (2 rounds, +1 Cowardice)</label>
+                        <label><input type="radio" name="injuryType" value="major"> Major (3 rounds, +2 Cowardice)</label>
+                        <label>Reason (Optional):</label><input type="text" id="manualInjuryReason">
+                        <br><br>
+                        <button onclick="playerMgmt.manualInjury()">Apply Injury</button>
+                        <button onclick="playerMgmt.removeInjury()">Remove Injury</button>
+                    </div>
+                    <div class="control-box pregnancy-box">
+                        <h3>Manual Pregnancy</h3>
+                        <label>Player ID:</label><input type="number" id="pregnantPlayerId" min="1">
+                        <br><br>
+                        <button onclick="playerMgmt.makePlayerPregnant()" style="width: 100%;">Make Pregnant</button>
+                        <button onclick="playerMgmt.removePregnancy()" style="width: 100%; margin-top: 5px;">Remove Pregnancy</button>
+                    </div>
+                    <div class="control-box" style="background-color: var(--control-box-bg); color: var(--text-color);">
+                        <h3>Win Chance Calculator</h3>
+                        <p>Analyze a player's probability of winning based on their stats and a sequence of games.</p>
+                        <button onclick="ui.openWinChanceCalculator()" style="width: 100%;">Open Calculator</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOOLTIPS -->
+    <div class="player-info-tooltip" id="playerTooltip"></div>
+
+    <!-- WINNER HISTORY -->
+    <div class="winner-history-container" id="winnerHistoryContainer" style="display: none;">
+        <h3>Game Winner History</h3>
+        <ul id="winnerHistoryList"></ul>
+    </div>
+
+    <!-- PLAYER CARD MODAL -->
+    <div class="modal-overlay" id="playerCardModal" onclick="ui.closePlayerCard(event)">
+        <div class="player-card" onclick="event.stopPropagation()">
+            <div style="position:absolute; top:8px; left:10px; right:40px; display:flex; align-items:center; justify-content:space-between; pointer-events:none;">
+                <button id="playerCardPrevBtn" onclick="ui.openAdjacentPlayer(-1)" style="pointer-events:auto; border:none; background:rgba(0,0,0,0.4); color:#fff; border-radius:999px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer;">◀</button>
+                <button id="playerCardNextBtn" onclick="ui.openAdjacentPlayer(1)" style="pointer-events:auto; border:none; background:rgba(0,0,0,0.4); color:#fff; border-radius:999px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer;">▶</button>
+            </div>
+            <span class="player-card-close" onclick="ui.closePlayerCard()">&times;</span>
+            <div class="player-card-pic">
+                <div id="playerCardUploadTrigger" title="Click to upload a custom photo">
+                    <div class="player-card-photo-wrapper">
+                        <button id="playerCardPhotoPrev" class="player-card-photo-nav" type="button" onclick="ui.prevPhoto()" title="Previous photo">◀</button>
+                        <img id="playerCardImg" src="https://i.imgur.com/AJ3InNO.png" alt="Player Silhouette">
+                        <button id="playerCardPhotoNext" class="player-card-photo-nav" type="button" onclick="ui.nextPhoto()" title="Next photo">▶</button>
+                    </div>
+                    <div id="playerCardPhotoModeLabel" class="player-card-photo-mode-label">Photo 1</div>
+                </div>
+                <input type="file" id="playerImageInput" accept="image/*">
+                <h3 id="playerCardName">Player 000</h3>
+                <p id="playerCardNumber">000</p>
+                <span id="favoriteStar" class="favorite-star-toggle" title="Star this player" onclick="ui.toggleFavoritePlayer()">☆</span>
+                <p id="playerCardStatus">Status</p>
+                <button id="playerCardOpenUrlInputBtn" onclick="document.getElementById('playerCardUrlInputArea').style.display = document.getElementById('playerCardUrlInputArea').style.display === 'none' ? 'block' : 'none'" style="margin-top: 5px;">Edit Photo URL</button>
+                <div id="playerCardUrlInputArea" style="display: none; margin-top: 10px; padding: 5px; border: 1px solid #ccc; background-color: #f0f0f0;">
+                    <label for="playerCardUrlInput" style="font-size: 0.8em; display: block; margin-bottom: 3px;">Paste Image URL:</label>
+                    <input type="text" id="playerCardUrlInput" style="width: 90%; margin-bottom: 5px;">
+                    <button onclick="ui.applyUrlFromCard()" style="width: 48%; margin: 2px 1%; padding: 4px; font-size: 0.8em;">Apply URL</button>
+                    <button onclick="ui.removePhotoFromCard()" style="width: 48%; margin: 2px 1%; padding: 4px; font-size: 0.8em;">Remove Photo</button>
+                </div>
+            </div>
+            <div class="player-card-info">
+                <h4>Dossier</h4>
+                <p><strong>Age:</strong> <span id="playerCardAge"></span></p>
+                <p><strong>Gender:</strong> <span id="playerCardGender"></span></p>
+                <p><strong>Country:</strong> <span id="playerCardCountry"></span></p>
+                <p><strong>Occupation:</strong> <span id="playerCardOccupation"></span></p>
+                <p><strong>Debt:</strong> <span id="playerCardDebt"></span></p>
+                <p id="playerCardSpecialConditionRow"><strong>Special Condition:</strong> <span id="playerCardSpecialCondition">None</span></p>
+                <p><strong>Relations:</strong> <span id="playerCardRelation">None</span></p>
+                <p><strong>Allies:</strong> <span id="playerCardAllies">None</span></p>
+                <p><strong>Enemies:</strong> <span id="playerCardEnemies">None</span></p>
+                <p><strong>Injury Status:</strong> <span id="playerCardInjury">None</span></p>
+                <p><strong>Protection:</strong> <span id="playerCardProtection">0</span></p>
+                <h4>Traits</h4>
+                <div class="player-card-traits">
+                    <p><strong>Strength:</strong> <span id="playerCardStrength"></span></p>
+                    <p><strong>Agility:</strong> <span id="playerCardAgility"></span></p>
+                    <p><strong>Intelligence:</strong> <span id="playerCardIntelligence"></span></p>
+                    <p><strong>Charisma:</strong> <span id="playerCardCharisma"></span></p>
+                    <p><strong>Luck:</strong> <span id="playerCardLuck"></span></p>
+                    <p><strong>Cowardice:</strong> <span id="playerCardCowardice"></span></p>
+                    <p><strong>Greed:</strong> <span id="playerCardGreed"></span></p>
+                </div>
+                <h4>Action Log</h4>
+                <div id="playerCardActionLog" style="max-height: 150px; overflow-y: auto; font-size: 0.85em; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;"></div>
+                <div style="margin-top: 10px;">
+                    <button onclick="ui.toggleForceWinner(ui.currentPlayerInCardId)" style="width: 100%;">Toggle God Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIN CHANCE CALCULATOR MODAL -->
+    <div class="modal-overlay" id="winChanceModal">
+        <div class="win-chance-modal-content" style="background-color: #f0f0f0; color: #111; border-radius: 10px; padding: 20px; width: 95%; max-width: 1200px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+            <span style="position: absolute; top: 15px; right: 20px; font-size: 2.5em; cursor: pointer; color: #333;" onclick="ui.closeWinChanceCalculator()">&times;</span>
+            <h3>Win Chance Calculator</h3>
+            <p id="winChancePredictionNote" style="font-style: italic; font-size: 0.9em; text-align: center; margin-bottom: 10px;">This is a heuristic prediction based on stats, not a guarantee.</p>
+            <div style="display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
+                <div style="flex: 1 1 200px;">
+                    <label for="winChancePlayerId">Primary Player ID:</label>
+                    <input type="number" id="winChancePlayerId" min="1">
+                    <label for="winChanceCompareIds" style="margin-top: 10px;">Compare With (IDs separated by comma):</label>
+                    <input type="text" id="winChanceCompareIds" placeholder="e.g., 67, 101, 218">
+                    <button onclick="ui.showTopContenders()" style="width: 100%; margin-top: 15px;">Show Top 10 Contenders</button>
+                    <div id="topContendersList" style="margin-top: 10px;"></div>
+                </div>
+                <div style="flex: 1 1 200px;">
+                    <label for="winChanceGameSelect">Select Game to Add:</label>
+                    <select id="winChanceGameSelect" style="width: 100%; margin-bottom: 5px;">
+                        <option value="Red Light Green Light">Red Light Green Light</option>
+                        <option value="Dalgona">Dalgona</option>
+                        <option value="Tug of War">Tug of War</option>
+                        <option value="Marbles">Marbles</option>
+                        <option value="Glass Bridge">Glass Bridge</option>
+                        <option value="Squid Game">Squid Game</option>
+                        <option value="Lights Out">Lights Out</option>
+                        <option value="Hide & Seek">Hide & Seek</option>
+                        <option value="Pentathlon">Pentathlon</option>
+                        <option value="Mingle">Mingle</option>
+                    </select>
+                    <button onclick="ui.addGameToPredictionList()" style="width: 100%; margin-bottom: 5px;">Add Game to List</button>
+                    <label>Prediction Game List:</label>
+                    <div id="winChanceGameListContainer" style="background: white; color: #111; border: 1px solid #999; min-height: 60px; padding: 5px; border-radius: 3px;"></div>
+                    <button onclick="ui.clearPredictionList()" style="width: 100%; margin-top: 5px;">Clear List</button>
+                </div>
+            </div>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <button onclick="ui.calculateWinChance(true)">Predict Win % Trajectory</button>
+                <button onclick="ui.calculateWinChance(false)">Show Current Win % Trajectory</button>
+                <button onclick="ui.calculateSurvivalChance()">Show Per-Game Survival %</button>
+            </div>
+            <div style="flex-grow: 1; position: relative; background: white; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <canvas id="winChanceCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files (load order matters!) -->
+    <script src="js/constants.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/log.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/injury.js"></script>
+    <script src="js/easter-eggs.js"></script>
+    <script src="js/text-sim.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/game-handlers-extra.js"></script>
+    <script src="js/player-mgmt.js"></script>
+    <script src="js/relationships.js"></script>
+    <script src="js/vip-betting.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/lobby-talk.js"></script>
+    <script src="js/main.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

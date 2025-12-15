@@ -1,0 +1,10 @@
+// ============================================
+// CONSTANTS (Names, occupations, etc.)
+// ============================================
+const constants = {
+    countries: ["China", "India", "USA", "Brazil", "Nigeria", "Russia", "Japan", "Germany", "UK", "France", "Canada", "Australia", "South Korea", "Mexico", "Indonesia", "Pakistan", "Bangladesh", "Ethiopia", "Philippines", "Egypt", "Vietnam", "DR Congo", "Turkey", "Iran", "Thailand", "Italy", "South Africa", "Tanzania", "Myanmar", "Colombia", "Kenya", "Spain", "Argentina", "Ukraine", "Uganda", "Algeria", "Sudan", "Iraq", "Afghanistan", "Poland", "Morocco", "Saudi Arabia", "Uzbekistan", "Peru", "Angola", "Malaysia", "Mozambique", "Ghana", "Yemen", "Nepal", "Venezuela"],
+    occupations: ["Teacher", "Engineer", "Doctor", "Nurse", "Farmer", "Police Officer", "Firefighter", "Lawyer", "Accountant", "Architect", "Pilot", "Chef", "Dentist", "Pharmacist", "Software Developer", "Electrician", "Plumber", "Carpenter", "Mechanic", "Veterinarian", "Scientist", "Journalist", "Artist", "Musician", "Actor", "Unemployed", "Unemployed", "Unemployed", "Unemployed", "Unemployed", "Unemployed", "Unemployed", "Unemployed", "Unemployed"],
+    firstNamesMale: ["Min-jun", "Seo-jun", "Do-yun", "Ye-jun", "Si-woo", "Ha-jun", "Ji-ho", "Jun-seo", "Joon-woo", "Hyun-woo", "Ji-hoon", "Tae-min", "Sung-ho", "Dong-hyun", "Woo-jin", "Sang-woo", "Gi-hun", "Il-nam", "Jun-ho", "Deok-su", "Byeong-gi", "Jang-deok", "Cheol-su", "Young-ho", "Seung-gi", "Hyun-su", "Min-ho", "Jae-hyuk", "Kyung-soo", "Dae-jung"],
+    firstNamesFemale: ["Sae-byeok", "Ji-yeong", "Mi-nyeo", "Soo-yeon", "Hye-jin", "Yoo-na", "Min-ji", "Eun-bi", "Ji-soo", "Ha-na", "Seo-yeon", "Yeon-hee", "Bo-ra", "Da-hye", "Eun-jung", "Hye-won", "In-young", "Ji-hye", "Kyung-mi", "Mi-sun", "Na-young", "So-hee", "Sun-hee", "Yoo-jin", "Young-ja", "Ae-cha", "Bong-cha", "Choon-hee", "Dae-jung", "Eun-kyung"],
+    lastNames: ["Kim", "Lee", "Park", "Choi", "Jung", "Kang", "Cho", "Yoon", "Jang", "Lim", "Han", "Oh", "Seo", "Shin", "Kwon", "Hwang", "Ahn", "Song", "Yoo", "Hong", "Jeon", "Ko", "Moon", "Yang", "Son", "Bae", "Baek", "Heo", "Nam", "Sim"],
+};

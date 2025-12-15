@@ -1,0 +1,150 @@
+/* ============================================
+   CONTROL PANELS & TABS
+   ============================================ */
+.controls { 
+    margin: 6px 0 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+.control-panel-wrapper {
+    border: 1px solid var(--control-panel-border);
+    background-color: var(--control-panel-bg);
+    width: 100%;
+    max-width: 1200px;
+    margin: 10px auto 6px;
+    padding: 6px 8px 10px;
+    border-radius: 14px;
+    box-shadow: 0 0 26px rgba(0, 0, 0, 0.85);
+}
+#controlPanelToggle, #advanced-settings-toggle, #instructions-toggle {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 6px 10px;
+    background: linear-gradient(90deg, #1a0a1f, #2b0f24);
+    color: #ffebf0;
+    text-align: center;
+    border-radius: 999px;
+    font-size: 0.9em;
+    border: 1px solid #ff80ab55;
+}
+
+.tab-buttons {
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--tab-bg);
+    border-radius: 10px;
+}
+.tab-buttons button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 10px;
+    transition: 0.2s;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--text-color);
+}
+.tab-buttons button:hover { background-color: var(--tab-hover); }
+.tab-buttons button.active { background-color: var(--tab-active); }
+
+.tab-content {
+    display: none;
+    padding: 8px 4px 4px;
+    border-top: none;
+}
+.tab-content .control-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 8px;
+    padding: 8px 0 4px;
+}
+
+/* ============================================
+   CONTROL BOXES
+   ============================================ */
+.control-box {
+    text-align: left;
+    vertical-align: top;
+    border: 1px solid var(--control-box-border);
+    padding: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    display: block;
+    font-size: 0.88em;
+    height: min-content;
+    background-color: rgba(9, 2, 14, 0.96);
+    color: #ffebf0;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+}
+.control-box label, .control-box input, .control-box select, .control-box button { 
+    font-size: 0.95em; 
+    color: #ffebf0;
+}
+.control-box input[type="text"], 
+.control-box input[type="number"], 
+.control-box select { 
+    width: 95%; 
+    margin-bottom: 5px; 
+    background-color: #160815;
+    border: 1px solid #ff80ab80;
+    border-radius: 6px;
+    padding: 3px 6px;
+}
+.control-box h3, .control-box h4 { 
+    margin: 0 0 8px 0; 
+    font-size: 1em; 
+    color: #ffebf0;
+}
+.control-box button { 
+    width: 100%; 
+    margin: 4px 0; 
+    padding: 6px; 
+    background-color: var(--button-bg); 
+    border: none; 
+    border-radius: 999px; 
+    color: #050308; 
+    font-weight: 600; 
+}
+.control-box button:hover { background-color: var(--button-hover); }
+.control-box button:disabled { opacity: 0.5; cursor: not-allowed; background-color: #999; }
+
+/* Custom Games list */
+#customGamesList {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Colored control boxes */
+.superpower-box { background-color: var(--superpower-box); }
+.personality-box { background-color: var(--personality-box); }
+.manual-actions-box { background-color: var(--manual-actions-box); }
+.easter-egg-box { background-color: var(--easter-egg-box); max-height: 280px; overflow-y: auto; }
+.pregnancy-box {
+    background-color: var(--injury-box);
+    color: var(--text-color);
+    border-color: var(--injury-box);
+}
+.favorites-box {
+    background-color: var(--events-box);
+    color: var(--text-color);
+    border-color: var(--events-box);
+}
+.game-presets-box { background-color: var(--game-presets-box); max-height: 280px; overflow-y: auto; }
+.voting-box { background-color: var(--voting-box); }
+.statistics-box { background-color: var(--statistics-box); }
+.traits-box { background-color: var(--traits-box); }
+.injury-box { background-color: var(--injury-box); }
+.alliance-box { background-color: var(--alliance-box); }
+.enemy-box { background-color: var(--enemy-box); }
+.events-box { background-color: var(--events-box); }
+.vip-box { background-color: var(--vip-box); color: var(--vip-color); border-color: var(--vip-border); }

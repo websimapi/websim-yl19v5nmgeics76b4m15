@@ -1,0 +1,109 @@
+/* ============================================
+   STARTUP FADE OVERLAY
+   ============================================ */
+#startupOverlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 99999;
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.75s ease-out;
+}
+#startupOverlay.hidden {
+    opacity: 0;
+}
+
+/* ============================================
+   INITIAL UI ANIMATION STATES
+   ============================================ */
+.title-container,
+#grid-viewport-container,
+.top-bar,
+#advanced-settings-panel,
+.controls,
+#instructions-panel,
+.control-panel-wrapper {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Title fades in first */
+.animate-in-title {
+    animation: titleFadeIn 0.8s ease-out forwards;
+}
+
+/* Grid + log do a cartoonish pop-in */
+.animate-in-grid {
+    animation: gridPopIn 0.8s cubic-bezier(0.26, 0.76, 0.25, 1.25) forwards;
+}
+
+/* Rest of UI slides in smoothly */
+.animate-in-rest {
+    animation: restSlideIn 0.8s ease-out forwards;
+}
+
+@keyframes titleFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gridPopIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.05) translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes restSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   RESET & FOUNDATIONS
+   ============================================ */
+@font-face {
+    font-family: 'GameOfSquids';
+    src: url('/Game Of Squids.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: var(--bg-color, #050308);
+    color: var(--text-color, #fce4ec);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+button, input, select {
+    font-family: inherit;
+    font-size: inherit;
+}
+button { cursor: pointer; }
+input[type="file"] { display: none; }

@@ -1,0 +1,119 @@
+/* ============================================
+   PLAYER DIAMOND STYLING
+   ============================================ */
+.player {
+    width: 36px;
+    height: 36px;
+    background-color: var(--player-bg);
+    color: var(--player-text);
+    font-weight: bold;
+    border: 1px solid var(--player-border);
+    cursor: pointer;
+    position: absolute;
+    opacity: 1;
+    transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out, transform 0.2s, box-shadow 0.2s;
+    transform: rotate(45deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 10px rgba(255, 64, 129, 0.25);
+}
+
+/* For spawn animation - start hidden */
+.player.spawning {
+    opacity: 0;
+}
+
+/* New game spawn animation */
+@keyframes playerSpawnFade {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) scale(0.7);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+.player-number, .player-baby-icon {
+    transform: rotate(-45deg);
+    font-size: 0.8em;
+    font-family: monospace;
+}
+.player-baby-icon { font-size: 1.5em; }
+
+.player-text-shadow {
+    color: var(--player-text) !important;
+    text-shadow: 0px 0px 4px var(--bg-color), 0px 0px 4px var(--bg-color), 0px 0px 3px var(--bg-color);
+}
+
+.player-image-container {
+    position: absolute;
+    width: 135%;
+    height: 135%;
+    overflow: hidden;
+    transform: rotate(90deg);
+}
+.player-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: center center;
+}
+.player.eliminated .player-image-container img,
+.player.voted-out .player-image-container img {
+    filter: brightness(30%) grayscale(80%);
+}
+
+.player:hover {
+    transform: rotate(45deg) scale(1.1);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 50;
+}
+
+.player-favorite-highlight {
+    box-shadow: 0 0 10px 3px lightyellow !important;
+    z-index: 40;
+}
+
+.group-highlight {
+    transform: rotate(45deg) scale(1.15) !important;
+    box-shadow: 0 0 15px 3px var(--player-finalist) !important;
+    z-index: 100;
+}
+
+.hidden-eliminated {
+    opacity: 0.1 !important;
+    transform: rotate(45deg) scale(0.8);
+}
+
+.faded-group-view { opacity: 0.4 !important; }
+
+.player-caretaker {
+    background-color: #ff69b4 !important;
+    color: white !important;
+}
+
+.player-pregnant {
+    box-shadow: 0 0 10px 4px #ffb6c1 !important;
+    border: 2px solid deeppink !important;
+}
+
+/* Player status classes */
+.eliminated { background-color: var(--player-elim) !important; color: white !important; }
+.winner { background-color: var(--player-winner) !important; color: white !important; }
+.finalist { background-color: var(--player-finalist) !important; color: black !important; }
+.eliminated-finalist { background-color: var(--player-elim-finalist) !important; color: white !important; }
+.dark-pink { background-color: var(--player-dark-pink) !important; color: white !important; }
+.purple { background-color: var(--player-purple) !important; color: white !important; }
+.voted-out { background-color: var(--player-voted-out) !important; color: white !important; opacity: 0.6; }
+.voted-o { background-color: var(--player-voted-o) !important; color: white !important; }
+.voted-x { background-color: var(--player-voted-x) !important; color: white !important; }
+.player-vip { background-color: var(--player-vip) !important; color: var(--vip-color) !important; border: 2px solid var(--player-vip-border) !important; }
+.player-vip-eliminated { background-color: var(--player-vip-elim) !important; color: #333 !important; border: 2px solid dimgray !important; }
+.player-easter-egg { background-color: var(--player-easter-egg) !important; color: black !important; border: 2px solid blue !important; }

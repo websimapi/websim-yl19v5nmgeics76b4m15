@@ -1,0 +1,242 @@
+/* ============================================
+   GAME LOG & HISTORY
+   ============================================ */
+.game-log {
+    margin-top: 0;
+    text-align: left;
+    display: block;
+    height: 65vh;
+    border: 1px solid var(--log-border);
+    padding: 8px 10px;
+    min-width: 0;
+    box-sizing: border-box;
+    background-color: var(--log-bg);
+    color: var(--text-color);
+    border-radius: 10px;
+    grid-column: 2 / 3;
+    grid-row: 2 / 4;
+    display: flex;
+    flex-direction: column;
+}
+.game-log-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 6px;
+}
+.game-log-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 6px 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 2px solid transparent;
+}
+.game-log-tab-btn.active {
+    border-bottom-color: var(--title-color);
+}
+.game-log-tab-content {
+    flex: 1;
+    display: none;
+    min-height: 0;
+}
+.game-log-tab-content.active {
+    display: flex;
+    flex-direction: column;
+}
+.game-events-list {
+    flex: 1;
+    overflow-y: auto;
+}
+#gameLogList {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+#gameLogList li {
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    background-color: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    border-left: 3px solid var(--border);
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+#gameLogList li:hover {
+    background-color: rgba(255,255,255,0.06);
+}
+#lobbyChatDisplay {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+    font-size: 0.86em;
+}
+.lobby-chat-line {
+    margin-bottom: 4px;
+}
+.lobby-chat-divider {
+    margin: 6px 0;
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    text-align: center;
+    background-color: rgba(255,255,255,0.04);
+    border: 1px dashed var(--border);
+    opacity: 0.9;
+}
+.lobby-chat-controls {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    font-size: 0.8em;
+}
+.lobby-chat-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.lobby-chat-controls-row label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.lobby-chat-controls-row input,
+.lobby-chat-controls-row select {
+    font-size: 0.8em;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background-color: #160815;
+    color: var(--text-color);
+}
+.lobby-chat-controls button {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: none;
+    background-color: var(--button-bg);
+    color: #050308;
+    font-weight: 600;
+    cursor: pointer;
+}
+.lobby-chat-controls button:hover {
+    background-color: var(--button-hover);
+}
+.lobby-chat-controls button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+.lobby-topic-extra {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.winner-history-container {
+    margin: 10px auto;
+    padding: 10px 12px;
+    border: 2px solid var(--winner-history-border);
+    background-color: var(--winner-history-bg);
+    text-align: left;
+    clear: both;
+    width: 100%;
+    max-width: 1200px;
+    border-radius: 12px;
+}
+.winner-history-container h3 {
+    text-align: center;
+    margin-top: 0;
+    color: var(--title-color);
+}
+.winner-history-container li {
+    background-color: var(--control-box-bg);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    color: var(--text-color);
+}
+
+/* ============================================
+   MISC STYLES
+   ============================================ */
+.player-link {
+    color: var(--player-voted-o);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: bold;
+}
+.player-link:hover { color: var(--player-voted-x); }
+.boosted-stat {
+    color: green;
+    font-weight: bold;
+}
+.enemy-text {
+    color: crimson;
+    font-weight: bold;
+}
+#eliminationOrderContainer {
+    min-height: 50px;
+    height: 200px;
+    resize: vertical;
+    overflow-y: auto;
+    border: 1px solid #999;
+    padding: 5px;
+    background-color: #050308;
+    text-align: left;
+}
+.elim-order-header {
+    font-weight: bold;
+    margin-top: 8px;
+    padding-left: 2px;
+    font-size: 0.9em;
+}
+.elim-order-item { padding-left: 5px; }
+
+/* ============================================
+   GENERIC COLLAPSIBLE ANIMATIONS
+   ============================================ */
+.collapsible {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.35s ease;
+}
+.collapsible.open {
+    opacity: 1;
+    max-height: 600px;
+}
+.log-expandable {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+    margin-top: 0;
+    padding: 0 8px;
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 4px;
+    font-size: 0.9em;
+    border-left: 2px solid var(--title-color);
+}
+.log-expandable.open {
+    opacity: 1;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 8px;
+    padding: 8px;
+}
+
+.player-card-traits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+.injury-debuff {
+    color: #ff6b6b;
+    font-style: italic;
+}
